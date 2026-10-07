@@ -15,12 +15,20 @@ import 'package:toy_flutter/custom_widget/radar_widget.dart';
 import 'package:toy_flutter/flutter_grammar/operator.dart';
 import 'package:toy_flutter/flutter_grammar/stream_example_screen.dart';
 import 'package:toy_flutter/grammar/mixin/manager.dart';
+import 'package:toy_flutter/unit_test/home_screen.dart';
 
 import 'async/future_ex.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await di.initDependencies();
+  // Testing Flutter apps: https://docs.flutter.dev/testing
+  // Unit testing intro: https://docs.flutter.dev/cookbook/testing/unit/introduction
+  runApp(const MaterialApp(
+    title: 'Flutter Demo',
+    home: HomeScreen(),
+  ));
+/*
   runApp(MaterialApp(
     home: ReusableDonutChart(
       data: [
@@ -33,6 +41,7 @@ Future<void> main() async {
       centerTitle: '총 50건',
     ),
   ));
+*/
 /*  runApp(
     MaterialApp(
       home: Scaffold(
