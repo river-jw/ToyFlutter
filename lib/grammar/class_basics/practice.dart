@@ -30,7 +30,21 @@
 //   - 문자열 안에서 변수는 어떻게 쓰는지 기억나나요?
 // ----------------------------------------------------------------
 // TODO: class Product
+class Product {
+  String name;
+  int price;
+  int stock;
 
+  Product(String name , int price , {int stock}) {
+    this.name = name;
+    this.price = price;
+    this.stock = stock;
+  }
+
+  void describe() {
+    print("상품 : $name / 가격 : $price / 재고 : $stock");
+  }
+}
 
 
 // ================================================================
@@ -46,7 +60,20 @@
 //   - 부모의 describe() 를 "다시 작성하지 말고" 호출해서 쓰세요.
 // ----------------------------------------------------------------
 // TODO: class DiscountProduct
+class DiscountProduct extends Product {
+    int discountRate;
+    DiscountProduct(String name , int price , {int stock=0},int discountRate) {
+      super(name,price,stock);
+      discountRate = this.discountRate;
+    }
 
+    @override
+    void describe() {
+      super.describe();
+      int discount_price = price * (100 - discountRate) ~/ 100
+      print("할인율 : $discountRate -> 할인가 : $discount_price");
+    }
+}
 
 
 // ================================================================
@@ -97,9 +124,9 @@
 void main() {
   // 문제 1, 2, 4 를 다 만들었으면 아래 주석을 풀고 실행하세요.
 
-  // Product("키보드", 50000).describe();
-  // Product("마우스", 30000, stock: 10).describe();
-  // DiscountProduct("모니터", 200000, 10).describe();
+   Product("키보드", 50000).describe();
+   Product("마우스", 30000, stock: 10).describe();
+   DiscountProduct("모니터", 200000, 10).describe();
   //
   // CardPayment(50000).pay();
   // CashPayment(30000).pay();
