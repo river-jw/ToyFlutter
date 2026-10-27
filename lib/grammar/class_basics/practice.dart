@@ -30,12 +30,13 @@
 //   - 문자열 안에서 변수는 어떻게 쓰는지 기억나나요?
 // ----------------------------------------------------------------
 // TODO: class Product
+/*  [내가 작성한 것]
 class Product {
-  String name;
-  int price;
-  int stock;
+ String name;
+ int price;
+ int stock;
 
-  Product(String name , int price , {int stock}) {
+  Product({required String name , required int price} , {int stock=0}) {
     this.name = name;
     this.price = price;
     this.stock = stock;
@@ -43,6 +44,26 @@ class Product {
 
   void describe() {
     print("상품 : $name / 가격 : $price / 재고 : $stock");
+  }
+}
+*/
+
+// [틀린 부분]
+//  1) { } 가 두 개 → 이름 있는 매개변수 { } 는 하나만, 맨 뒤에만 올 수 있다.
+//     main 이 Product("키보드", 50000) 처럼 순서대로 넘기니까 name, price 는 { } 밖으로.
+//  2) 생성자 몸통 { } 안에서 필드 채우기 (Java 방식)
+//     → Dart 는 null 이 될 수 없는 필드를 "몸통이 실행되기 전에" 채워야 한다.
+//     → 매개변수 자리에 this.name 이라고 쓰면, 받는 순간 바로 필드에 저장된다.
+//  3) 출력 형식: "상품 : " → "상품: ",  가격 뒤 "원", 재고 뒤 "개" 빠짐
+class Product {
+  String name;
+  int price;
+  int stock;
+
+  Product(this.name, this.price, {this.stock = 0});
+
+  void describe() {
+    print("상품: $name / 가격: $price원 / 재고: $stock개");
   }
 }
 
@@ -60,19 +81,50 @@ class Product {
 //   - 부모의 describe() 를 "다시 작성하지 말고" 호출해서 쓰세요.
 // ----------------------------------------------------------------
 // TODO: class DiscountProduct
+/*  [내가 작성한 것]
 class DiscountProduct extends Product {
     int discountRate;
-    DiscountProduct(String name , int price , {int stock=0},int discountRate) {
-      super(name,price,stock);
+    DiscountProduct(String name , int price ,int discountRate ,  {int stock=0})
+    : super(name,price,stock)
+    {
       discountRate = this.discountRate;
     }
 
     @override
     void describe() {
       super.describe();
-      int discount_price = price * (100 - discountRate) ~/ 100
+      int discount_price = price * (100 - discountRate) ~/ 100;
       print("할인율 : $discountRate -> 할인가 : $discount_price");
     }
+}
+*/
+
+// [틀린 부분]
+//  1) super(name, price, stock) → stock 을 "세 번째 순서" 로 넘김
+//     → super(...) 도 Product 생성자 "호출" 이라 Product 를 부르는 규칙과 같다.
+//     → Product 는 stock 을 { } 안에서 받으니 이름을 붙여서 stock: stock
+//  2) discountRate 를 몸통 { } 에서 채움 (+ 방향도 반대였음)
+//     → 객체가 만들어지는 순서: ① 필드 채우기 → ② 부모 생성자 → ③ 객체 완성 → ④ 몸통
+//     → 몸통은 너무 늦다. 문제 1 처럼 매개변수 자리에 this.discountRate
+//     → 그러면 몸통 { } 자체가 필요 없어진다.
+//  3) 출력 형식: 앞 공백 2칸, "할인율: 10%", "→", 할인가 뒤 "원" / 변수 이름 discountPrice (lowerCamelCase)
+class DiscountProduct extends Product {
+  int discountRate;
+
+  // 처음 고친 형태 (super 호출이 눈에 보이는 버전)
+  // DiscountProduct(String name, int price, this.discountRate, {int stock = 0})
+  //     : super(name, price, stock: stock);
+
+  // super.xxx → 받은 값을 그대로 부모 생성자에 넘긴다 (this.xxx 의 짝)
+  // stock 기본값(0)은 부모 Product 의 기본값을 그대로 물려받는다.
+  DiscountProduct(super.name, super.price, this.discountRate, {super.stock});
+
+  @override
+  void describe() {
+    super.describe();   // 부모 출력은 다시 작성하지 않고 그대로 호출
+    int discountPrice = price * (100 - discountRate) ~/ 100;
+    print("  할인율: $discountRate% → 할인가: $discountPrice원");
+  }
 }
 
 
@@ -83,12 +135,12 @@ class DiscountProduct extends Product {
 //  X 라면 "그럼 어디에 써야 하는지" 도 적어보세요.
 //
 //  class Cart {
-//    int count = 0;              // (a) 답:
-//    print("장바구니 생성");       // (b) 답:
-//    void add() { count++; }     // (c) 답:
-//    add();                      // (d) 답:
-//    count = 5;                  // (e) 답:
-//    String get label => "$count개";   // (f) 답:
+//    int count = 0;              // (a) 답: O
+//    print("장바구니 생성");       // (b) 답: X
+//    void add() { count++; }     // (c) 답: O
+//    add();                      // (d) 답: X
+//    count = 5;                  // (e) 답: X
+//    String get label => "$count개";   // (f) 답: O
 //  }
 //
 //  보너스: 지난 mixin 문제에서 HeartRateSensor 몸통에 checkBattery(); 를 썼을 때
@@ -116,20 +168,43 @@ class DiscountProduct extends Product {
 //   - 자식 클래스에서 1, 3 번 print 를 다시 쓰고 있다면 → 다시 생각!
 // ----------------------------------------------------------------
 // TODO: class Payment
-// TODO: class CardPayment
-// TODO: class CashPayment
+abstract class Payment {
+  Payment(this.amount);
+  String paymentType = "";
+  int amount = 0;
 
+  void whatPayment() {
+    print("$paymentType");
+  }
+  void pay() {
+    print("[결제] : $amount");
+    whatPayment();
+    print("결제 완료 (영수증 발행)");
+  }
+}
+// TODO: class CardPayment
+class CardPayment extends Payment {
+  CardPayment(super.amount)  {
+      super.paymentType = "카드 : 카드 승인 요청"; 
+  }
+}
+// TODO: class CashPayment
+class CashPayment extends Payment {
+  CashPayment(super.amount) {
+     super.paymentType = "현금: 현금 수령"; 
+  }
+}
 
 
 void main() {
   // 문제 1, 2, 4 를 다 만들었으면 아래 주석을 풀고 실행하세요.
 
-   Product("키보드", 50000).describe();
-   Product("마우스", 30000, stock: 10).describe();
-   DiscountProduct("모니터", 200000, 10).describe();
+  // Product("키보드", 50000).describe();
+  // Product("마우스", 30000, stock: 10).describe();
+  // DiscountProduct("모니터", 200000, 10).describe();
   //
-  // CardPayment(50000).pay();
-  // CashPayment(30000).pay();
+   CardPayment(50000).pay();
+   CashPayment(30000).pay();
 
   /*
     [기대 출력]
