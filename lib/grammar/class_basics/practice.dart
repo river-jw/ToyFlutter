@@ -185,8 +185,9 @@ abstract class Payment {
 // TODO: class CardPayment
 class CardPayment extends Payment {
   CardPayment(super.amount)  {
-      super.paymentType = "카드 : 카드 승인 요청"; 
   }
+  @override
+  
 }
 // TODO: class CashPayment
 class CashPayment extends Payment {
